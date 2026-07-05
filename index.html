@@ -343,7 +343,7 @@
  // 1. 题目数据（40 题，完全依据你提供的图片内容）
  // ============================================================
  const questions = [
- { q: "有时我想了很久，却什么也没说。", a: "a. 有时我想了很久，却什么也没说。", b: "b. 我说话的速度经常比我想的要快。", aVal: 'I', bVal: 'E' },
+ { q: "与人交流时，我通常是……", a: "a. 先想再说，有时想了很久却没开口。", b: "b. 想到就说，说话速度比思考还快。", aVal: 'I', bVal: 'E' },
  { q: "长期计划让我觉得……", a: "a. 受到束缚。", b: "b. 让一切尽在掌控之中。", aVal: 'P', bVal: 'J' },
  { q: "更符合我的陈述是……", a: "a. 我对身边人的情绪很敏感。", b: "b. 错误立即引起我的注意。", aVal: 'F', bVal: 'T' },
  { q: "需要耐心和细心的工作，我觉得如何？", a: "a. 对我来说更像是一种折磨。", b: "b. 大多数让我感到开心。", aVal: 'N', bVal: 'S' },
@@ -359,7 +359,7 @@
  { q: "等客人时，……", a: "a. 我通常在客人到来前一刻钟完成准备工作。", b: "b. 第一个客人到达时，我还在准备。", aVal: 'J', bVal: 'P' },
  { q: "更符合我的陈述是……", a: "a. 对细节的良好感知。", b: "b. 对细节的拙劣感知。", aVal: 'S', bVal: 'N' },
  { q: "更符合我的陈述是……", a: "a. 我想在星期一就知道周末有什么计划。", b: "b. 我宁愿等着看周末能干啥。", aVal: 'J', bVal: 'P' },
- { q: "我最好的充电方式是……", a: "a. 在熟悉的圈子里放松。", b: "b. 有时间独处。", aVal: 'E', bVal: 'I' },
+ { q: "我最好的充电方式是……", a: "a. 在熟悉的圈子里放松。", b: "b. 有完整的独处时间。", aVal: 'I', bVal: 'E' },
  { q: "更符合我的陈述是……", a: "a. 我会读新设备的使用说明。", b: "b. 迫不得已时，我才读使用说明。", aVal: 'S', bVal: 'N' },
  { q: "让我很烦的是……", a: "a. 有人说话不算话。", b: "b. 有人不懂变通。", aVal: 'J', bVal: 'P' },
  { q: "更符合我的陈述是……", a: "a. 我的情绪大多数时候写在脸上。", b: "b. 其他人不太容易看得出我心里在想什么。", aVal: 'E', bVal: 'I' },
@@ -464,29 +464,61 @@
  const typeJ = scores.J >= scores.P ? 'J' : 'P';
  const finalType = typeE + typeS + typeT + typeJ;
 
+ // MBTI 类型中文描述
+ const typeNames = {
+  'INTJ': '建筑师', 'INTP': '逻辑学家', 'ENTJ': '指挥官', 'ENTP': '辩论家',
+  'INFJ': '提倡者', 'INFP': '调停者', 'ENFJ': '主人公', 'ENFP': '竞选者',
+  'ISTJ': '物流师', 'ISFJ': '守卫者', 'ESTJ': '总经理', 'ESFJ': '执政官',
+  'ISTP': '鉴赏家', 'ISFP': '探险家', 'ESTP': '企业家', 'ESFP': '表演者'
+ };
+
+ const typeDescriptions = {
+  'INTJ': '富有想象力和战略性的思考者，一切皆有规划。喜欢独立思考和长期规划，对知识有深度追求。',
+  'INTP': '具有创造力的发明家，对知识有着永不满足的渴望。善于分析抽象概念，追求逻辑一致性。',
+  'ENTJ': '大胆、富有想象力且意志坚强的领导者，总能找到或创造方法。天生善于组织和指挥。',
+  'ENTP': '聪明好奇的思想者，不介意智力挑战。喜欢从不同角度思考问题，享受辩论。',
+  'INFJ': '安静而神秘，同时鼓舞人心且不知疲倦的理想主义者。有深刻的洞察力和强烈的价值观。',
+  'INFP': '诗意、善良的利他主义者，总是热情地为正义事业而战。内心世界丰富而深刻。',
+  'ENFJ': '富有魅力和鼓舞人心的领导者，能令听众着迷。善于理解他人，天生的导师。',
+  'ENFP': '热情、有创造力、爱社交的自由精神，总能找到理由微笑。充满好奇心和可能性。',
+  'ISTJ': '安静、勤奋、负责的实际检查者。可靠、有条理，注重承诺和传统。',
+  'ISFJ': '非常专注和温暖的守护者，时刻准备保护所爱之人。体贴、细心、乐于奉献。',
+  'ESTJ': '出色的管理者，在管理事物和人员方面无与伦比。务实、果断、注重效率。',
+  'ESFJ': '极受欢迎、富有同情心的社交达人，总是乐于提供帮助。热心、善于合作。',
+  'ISTP': '大胆而实际的实践者，擅长使用各种工具。冷静、灵活，善于解决实际问题。',
+  'ISFP': '灵活有魅力的艺术家，总是准备探索和体验新事物。敏感、温柔、有审美眼光。',
+  'ESTP': '聪明、精力充沛、善于感知的冒险家。行动派，擅长说服和随机应变。',
+  'ESFP': '自发的、精力充沛的表演者，喜欢在聚光灯下生活。热情乐观，是人群中的开心果。'
+ };
+
+ const name = typeNames[finalType] || '';
+ const desc = typeDescriptions[finalType] || '';
+
  // 显示结果
  const resultDiv = document.getElementById('result');
  resultDiv.style.display = 'block';
  resultDiv.innerHTML = `
- <h2>🧾 你的测试结果</h2>
- <div class="type-badge">${finalType}</div>
- <div class="score-grid">
- <span class="score-item"><strong>E</strong> ${scores.E}</span>
- <span class="score-item"><strong>I</strong> ${scores.I}</span>
- <span class="score-item" style="color:#94a3b8;">|</span>
- <span class="score-item"><strong>S</strong> ${scores.S}</span>
- <span class="score-item"><strong>N</strong> ${scores.N}</span>
- <span class="score-item" style="color:#94a3b8;">|</span>
- <span class="score-item"><strong>T</strong> ${scores.T}</span>
- <span class="score-item"><strong>F</strong> ${scores.F}</span>
- <span class="score-item" style="color:#94a3b8;">|</span>
- <span class="score-item"><strong>J</strong> ${scores.J}</span>
- <span class="score-item"><strong>P</strong> ${scores.P}</span>
- </div>
- <div class="desc-box">
- <span class="highlight">人格类型：${finalType}</span><br>
- <span style="color:#64748b;">（各维度取分数高者，例如 E 与 I 比较，分数高者即为你该维度的偏好）</span>
- </div>
+  <h2>🧾 你的测试结果</h2>
+  <div class="type-badge">${finalType}</div>
+  <div style="font-size:20px;font-weight:700;margin:6px 0 10px;color:#0f172a;">${name}</div>
+  <div class="score-grid">
+   <span class="score-item"><strong>E</strong> ${scores.E}</span>
+   <span class="score-item"><strong>I</strong> ${scores.I}</span>
+   <span class="score-item" style="color:#94a3b8;">|</span>
+   <span class="score-item"><strong>S</strong> ${scores.S}</span>
+   <span class="score-item"><strong>N</strong> ${scores.N}</span>
+   <span class="score-item" style="color:#94a3b8;">|</span>
+   <span class="score-item"><strong>T</strong> ${scores.T}</span>
+   <span class="score-item"><strong>F</strong> ${scores.F}</span>
+   <span class="score-item" style="color:#94a3b8;">|</span>
+   <span class="score-item"><strong>J</strong> ${scores.J}</span>
+   <span class="score-item"><strong>P</strong> ${scores.P}</span>
+  </div>
+  <div class="desc-box">
+   <span class="highlight">${finalType} ${name}</span>
+   <p style="margin-top:8px;line-height:1.8;">${desc}</p>
+   <p style="margin-top:12px;color:#64748b;font-size:14px;border-top:1px solid #e2e8f0;padding-top:12px;">💡 各维度取分数高者。例如 E（外向）与 I（内向），得分高的即为你在该维度的偏好。</p>
+  </div>
  `;
 
  // 平滑滚动到结果
