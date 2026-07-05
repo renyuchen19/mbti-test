@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+ <title>MBTI 人格类型测试</title>
+ <style>
+ /* ---------- 全局重置 & 字体 ---------- */
+ * {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ }
+
+ body {
+ font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+ background: #f0f4f9;
+ padding: 20px 16px 50px;
+ color: #1a202c;
+ min-height: 100vh;
+ }
+
+ /* 主容器：电脑上居中且变宽，手机上全屏舒适 */
+ .container {
+ max-width: 780px;
+ margin: 0 auto;
+ background: #ffffff;
+ border-radius: 28px;
+ box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+ padding: 24px 22px 32px;
+ }
+
+ /* ---------- 头部 ---------- */
+ .header {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ flex-wrap: wrap;
+ margin-bottom: 18px;
+ border-bottom: 2px solid #edf2f7;
+ padding-bottom: 14px;
+ }
+
+ .header h1 {
+ font-size: 22px;
+ font-weight: 700;
+ color: #0f172a;
+ letter-spacing: 0.5px;
+ }
+
+ .header h1 span {
+ color: #3b82f6;
+ }
+
+ .progress-badge {
+ background: #eef2ff;
+ color: #4338ca;
+ font-size: 14px;
+ font-weight: 600;
+ padding: 6px 16px;
+ border-radius: 40px;
+ white-space: nowrap;
+ }
+
+ /* ---------- 题目卡片 ---------- */
+ .question {
+ background: #fafcff;
+ border: 1px solid #e9edf2;
+ border-radius: 18px;
+ padding: 18px 18px 14px;
+ margin-bottom: 16px;
+ transition: border-color 0.2s;
+ }
+
+ .question:hover {
+ border-color: #bdd3f8;
+ }
+
+ .q-title {
+ font-weight: 600;
+ font-size: 16px;
+ line-height: 1.5;
+ margin-bottom: 10px;
+ color: #0b1b33;
+ display: flex;
+ gap: 8px;
+ }
+
+ .q-title .q-num {
+ display: inline-block;
+ background: #e9edf2;
+ color: #334155;
+ font-size: 13px;
+ font-weight: 700;
+ width: 26px;
+ height: 26px;
+ border-radius: 30px;
+ text-align: center;
+ line-height: 26px;
+ flex-shrink: 0;
+ }
+
+ /* ---------- 选项按钮 ---------- */
+ .options {
+ display: flex;
+ flex-direction: column;
+ gap: 6px;
+ margin-top: 2px;
+ }
+
+ .options label {
+ display: flex;
+ align-items: flex-start;
+ gap: 12px;
+ font-size: 15px;
+ line-height: 1.45;
+ padding: 11px 14px;
+ border-radius: 12px;
+ background: #f8fafc;
+ border: 1.5px solid transparent;
+ transition: all 0.15s ease;
+ cursor: pointer;
+ -webkit-tap-highlight-color: transparent;
+ }
+
+ /* 电脑端 hover 效果 */
+ @media (hover: hover) {
+ .options label:hover {
+ background: #f1f5f9;
+ border-color: #cbd5e1;
+ }
+ }
+
+ /* 手机端点击反馈 */
+ .options label:active {
+ background: #e2e8f0;
+ transform: scale(0.98);
+ }
+
+ .options input[type="radio"] {
+ margin-top: 2px;
+ width: 20px;
+ height: 20px;
+ flex-shrink: 0;
+ accent-color: #3b82f6;
+ cursor: pointer;
+ }
+
+ /* 选中状态 */
+ .options label:has(input:checked) {
+ background: #dbeafe;
+ border-color: #3b82f6;
+ box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+ }
+
+ /* ---------- 提交按钮 ---------- */
+ .btn-submit {
+ display: block;
+ width: 100%;
+ padding: 18px 20px;
+ font-size: 19px;
+ font-weight: 700;
+ background: #1e293b;
+ color: white;
+ border: none;
+ border-radius: 60px;
+ margin: 26px 0 10px;
+ cursor: pointer;
+ transition: all 0.2s;
+ letter-spacing: 1px;
+ box-shadow: 0 6px 18px rgba(30, 41, 59, 0.20);
+ }
+
+ .btn-submit:hover {
+ background: #0f172a;
+ transform: translateY(-2px);
+ box-shadow: 0 10px 24px rgba(30, 41, 59, 0.25);
+ }
+
+ .btn-submit:active {
+ transform: scale(0.97);
+ background: #334155;
+ }
+
+ /* ---------- 结果区域 ---------- */
+ #result {
+ background: #f8fafc;
+ border-radius: 24px;
+ padding: 24px 22px;
+ border: 2px solid #e2e8f0;
+ display: none;
+ margin-top: 28px;
+ animation: fadeUp 0.4s ease;
+ }
+
+ @keyframes fadeUp {
+ from {
+ opacity: 0;
+ transform: translateY(16px);
+ }
+ to {
+ opacity: 1;
+ transform: translateY(0);
+ }
+ }
+
+ #result h2 {
+ font-size: 20px;
+ font-weight: 600;
+ color: #0f172a;
+ margin-bottom: 4px;
+ }
+
+ .type-badge {
+ font-size: 44px;
+ font-weight: 800;
+ color: #2563eb;
+ letter-spacing: 3px;
+ margin: 6px 0 12px;
+ background: #eef2ff;
+ display: inline-block;
+ padding: 4px 24px 6px;
+ border-radius: 60px;
+ }
+
+ .score-grid {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 6px 20px;
+ background: white;
+ padding: 14px 18px;
+ border-radius: 16px;
+ margin: 10px 0 14px;
+ border: 1px solid #e2e8f0;
+ }
+
+ .score-item {
+ font-size: 15px;
+ font-weight: 500;
+ }
+
+ .score-item strong {
+ font-weight: 700;
+ color: #0f172a;
+ margin-right: 4px;
+ }
+
+ .desc-box {
+ font-size: 15px;
+ line-height: 1.7;
+ color: #334155;
+ border-top: 1px solid #e2e8f0;
+ padding-top: 16px;
+ margin-top: 6px;
+ }
+
+ .desc-box .highlight {
+ font-weight: 700;
+ color: #1e293b;
+ }
+
+ /* ---------- 底部提示 ---------- */
+ .footer-note {
+ text-align: center;
+ color: #94a3b8;
+ font-size: 13px;
+ margin-top: 24px;
+ padding-top: 12px;
+ border-top: 1px solid #edf2f7;
+ }
+
+ /* ---------- 电脑端大屏优化 ---------- */
+ @media (min-width: 768px) {
+ body {
+ padding: 40px 30px;
+ background: #e8edf5;
+ }
+ .container {
+ padding: 36px 40px 40px;
+ }
+ .header h1 {
+ font-size: 28px;
+ }
+ .question {
+ padding: 20px 22px 16px;
+ }
+ .options label {
+ padding: 12px 18px;
+ font-size: 16px;
+ }
+ .type-badge {
+ font-size: 54px;
+ }
+ }
+
+ /* ---------- 手机端额外优化 ---------- */
+ @media (max-width: 480px) {
+ .container {
+ padding: 16px 14px 24px;
+ border-radius: 20px;
+ }
+ .header h1 {
+ font-size: 19px;
+ }
+ .q-title {
+ font-size: 15px;
+ }
+ .options label {
+ font-size: 14px;
+ padding: 10px 12px;
+ }
+ .btn-submit {
+ font-size: 17px;
+ padding: 16px;
+ }
+ }
+ </style>
+</head>
+<body>
+
+ <div class="container">
+
+ <!-- 头部：标题 + 进度 -->
+ <div class="header">
+ <h1>🧠 人格<span>类型</span></h1>
+ <div class="progress-badge" id="progressDisplay">0 / 40</div>
+ </div>
+
+ <!-- 题目容器 -->
+ <div id="app"></div>
+
+ <!-- 提交按钮 -->
+ <button class="btn-submit" id="submitBtn">📊 查看我的类型</button>
+
+ <!-- 结果容器 -->
+ <div id="result"></div>
+
+ <div class="footer-note">点击选项即可选中 · 全部答完自动计分</div>
+ </div>
+
+ <script>
+ // ============================================================
+ // 1. 题目数据（40 题，完全依据你提供的图片内容）
+ // ============================================================
+ const questions = [
+ { q: "有时我想了很久，却什么也没说。", a: "a. 有时我想了很久，却什么也没说。", b: "b. 我说话的速度经常比我想的要快。", aVal: 'I', bVal: 'E' },
+ { q: "长期计划让我觉得……", a: "a. 受到束缚。", b: "b. 让一切尽在掌控之中。", aVal: 'P', bVal: 'J' },
+ { q: "更符合我的陈述是……", a: "a. 我对身边人的情绪很敏感。", b: "b. 错误立即引起我的注意。", aVal: 'F', bVal: 'T' },
+ { q: "需要耐心和细心的工作，我觉得如何？", a: "a. 对我来说更像是一种折磨。", b: "b. 大多数让我感到开心。", aVal: 'N', bVal: 'S' },
+ { q: "更符合我的陈述是……", a: "a. 工作和休闲对我来说并没有那么清楚地分开。", b: "b. 先工作，再玩耍。", aVal: 'P', bVal: 'J' },
+ { q: "在关系中，我非常重视……", a: "a. 真相和公平。", b: "b. 和谐与同理心。", aVal: 'T', bVal: 'F' },
+ { q: "当我修修补补或做手工时，……", a: "a. 我仔细而准确。", b: "b. 我更多是凭感觉和估计。", aVal: 'S', bVal: 'N' },
+ { q: "如果必须选择，我宁愿将自己描述为……", a: "a. 现实主义者。", b: "b. 理想主义者。", aVal: 'S', bVal: 'N' },
+ { q: "更符合我的陈述是……", a: "a. 我家里一切都井然有序。", b: "b. 我家里有种"创造性的混乱"。", aVal: 'J', bVal: 'P' },
+ { q: "我的优势更多在于……", a: "a. 安排得井井有条。", b: "b. 灵活应对意外情况。", aVal: 'J', bVal: 'P' },
+ { q: "在公司时，……", a: "a. 我听得多。", b: "b. 我很喜欢说。", aVal: 'I', bVal: 'E' },
+ { q: "有问题时，……", a: "a. 我很少说，就算说也只告诉几个人。", b: "b. 我藏不住话。", aVal: 'I', bVal: 'E' },
+ { q: "我宁愿……", a: "a. 被叫作有感情的人。", b: "b. 被叫作有头脑的人。", aVal: 'F', bVal: 'T' },
+ { q: "等客人时，……", a: "a. 我通常在客人到来前一刻钟完成准备工作。", b: "b. 第一个客人到达时，我还在准备。", aVal: 'J', bVal: 'P' },
+ { q: "更符合我的陈述是……", a: "a. 对细节的良好感知。", b: "b. 对细节的拙劣感知。", aVal: 'S', bVal: 'N' },
+ { q: "更符合我的陈述是……", a: "a. 我想在星期一就知道周末有什么计划。", b: "b. 我宁愿等着看周末能干啥。", aVal: 'J', bVal: 'P' },
+ { q: "我最好的充电方式是……", a: "a. 在熟悉的圈子里放松。", b: "b. 有时间独处。", aVal: 'E', bVal: 'I' },
+ { q: "更符合我的陈述是……", a: "a. 我会读新设备的使用说明。", b: "b. 迫不得已时，我才读使用说明。", aVal: 'S', bVal: 'N' },
+ { q: "让我很烦的是……", a: "a. 有人说话不算话。", b: "b. 有人不懂变通。", aVal: 'J', bVal: 'P' },
+ { q: "更符合我的陈述是……", a: "a. 我的情绪大多数时候写在脸上。", b: "b. 其他人不太容易看得出我心里在想什么。", aVal: 'E', bVal: 'I' },
+ { q: "更符合我的陈述是……", a: "a. 我经常在最后一分钟完成工作。", b: "b. 我通常能很好地管理自己的时间。", aVal: 'P', bVal: 'J' },
+ { q: "我宁愿有……", a: "a. 哲学的天赋。", b: "b. 一种实际的才能。", aVal: 'N', bVal: 'S' },
+ { q: "必须做出决定时，我会在有疑问时依靠……", a: "a. 我的感觉。", b: "b. 客观事实。", aVal: 'F', bVal: 'T' },
+ { q: "与他人长时间相处时，……", a: "a. 我不觉得累。", b: "b. 我经常觉得很累。", aVal: 'E', bVal: 'I' },
+ { q: "我更喜欢……的工作。", a: "a. 需要社交技巧和同理心。", b: "b. 需要理性行动和分析思维。", aVal: 'F', bVal: 'T' },
+ { q: "与一群朋友一起旅行时，……", a: "a. 我几乎可以一直身边有人。", b: "b. 我不时地需要独处的时间。", aVal: 'E', bVal: 'I' },
+ { q: "更符合我的陈述是……", a: "a. 我通常让我的想法和感受脱口而出。", b: "b. 在我输出想法和感受之前，我通常会想很久。", aVal: 'E', bVal: 'I' },
+ { q: "更符合我的陈述是……", a: "a. 我经常思考未来及其可能性。", b: "b. 我的想法更多的是关注此时此地。", aVal: 'N', bVal: 'S' },
+ { q: "我更喜欢的工作领域是……", a: "a. 其中需要许多新概念。", b: "b. 准确性和事实性知识很重要。", aVal: 'N', bVal: 'S' },
+ { q: "下面的表达方式，……更适合我。", a: "a. 严厉但公平！", b: "b. 情大于法。", aVal: 'T', bVal: 'F' },
+ { q: "更符合我的陈述是……", a: "a. 我通常会很快就去处理不愉快的事情，想赶紧摆脱。", b: "b. 我经常把不愉快的事情拖了又拖。", aVal: 'J', bVal: 'P' },
+ { q: "其他人会形容我为……", a: "a. 腼腆而安静。", b: "b. 健谈而开放。", aVal: 'I', bVal: 'E' },
+ { q: "更符合我的陈述是……", a: "a. 我相当自然而强烈地体验我的感受。", b: "b. 我不太容易情绪化。", aVal: 'F', bVal: 'T' },
+ { q: "在……情况下，我的工作效率最高。", a: "a. 最后，时间紧迫。", b: "b. 提前，当我知道我还有足够的时间时。", aVal: 'P', bVal: 'J' },
+ { q: "我更喜欢……", a: "a. 谈论事实话题。", b: "b. 谈论人际关系。", aVal: 'T', bVal: 'F' },
+ { q: "更符合我的陈述是……", a: "a. 我喜欢思考"生活中的大问题"。", b: "b. 我更喜欢关注具体的东西。", aVal: 'N', bVal: 'S' },
+ { q: "我更可能会……", a: "a. 不怎么坚持我的立场。", b: "b. 惹人生气。", aVal: 'P', bVal: 'J' },
+ { q: "在空闲时间，我倾向于选择……", a: "a. 看一本好书或一部好电影。", b: "b. 社交活动或谈话。", aVal: 'I', bVal: 'E' },
+ { q: "我更可能的工作方式是……", a: "a. 爆发一股猛劲。", b: "b. 有纪律，有条理。", aVal: 'P', bVal: 'J' },
+ { q: "更符合我的陈述是……", a: "a. 我很容易被冒犯。", b: "b. 我心大。", aVal: 'F', bVal: 'T' }
+ ];
+
+ // ============================================================
+ // 2. 渲染题目到页面
+ // ============================================================
+ const app = document.getElementById('app');
+ const progressDisplay = document.getElementById('progressDisplay');
+
+ questions.forEach((q, idx) => {
+ const div = document.createElement('div');
+ div.className = 'question';
+ div.innerHTML = `
+ <div class="q-title">
+ <span class="q-num">${idx + 1}</span>
+ <span>${q.q}</span>
+ </div>
+ <div class="options">
+ <label><input type="radio" name="q${idx}" value="a"> ${q.a}</label>
+ <label><input type="radio" name="q${idx}" value="b"> ${q.b}</label>
+ </div>
+ `;
+ app.appendChild(div);
+ });
+
+ // ============================================================
+ // 3. 实时更新进度（监听所有 radio 的点击）
+ // ============================================================
+ function updateProgress() {
+ const total = questions.length;
+ let answered = 0;
+ for (let i = 0; i < total; i++) {
+ const checked = document.querySelector(`input[name="q${i}"]:checked`);
+ if (checked) answered++;
+ }
+ progressDisplay.textContent = `${answered} / ${total}`;
+ }
+
+ // 监听所有 radio 的变化
+ document.querySelectorAll('input[type="radio"]').forEach(radio => {
+ radio.addEventListener('change', updateProgress);
+ });
+
+ // 初始更新
+ updateProgress();
+
+ // ============================================================
+ // 4. 提交计算
+ // ============================================================
+ document.getElementById('submitBtn').addEventListener('click', function() {
+ const total = questions.length;
+ // 检查是否全部回答
+ let allAnswered = true;
+ for (let i = 0; i < total; i++) {
+ const checked = document.querySelector(`input[name="q${i}"]:checked`);
+ if (!checked) {
+ allAnswered = false;
+ break;
+ }
+ }
+ if (!allAnswered) {
+ alert('还有题目未作答，请完成全部 40 道题再提交。');
+ return;
+ }
+
+ // 统计分数
+ const scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+ for (let i = 0; i < total; i++) {
+ const q = questions[i];
+ const selected = document.querySelector(`input[name="q${i}"]:checked`);
+ if (!selected) continue;
+ const letter = selected.value === 'a' ? q.aVal : q.bVal;
+ scores[letter] = (scores[letter] || 0) + 1;
+ }
+
+ // 计算四维度类型
+ const typeE = scores.E >= scores.I ? 'E' : 'I';
+ const typeS = scores.S >= scores.N ? 'S' : 'N';
+ const typeT = scores.T >= scores.F ? 'T' : 'F';
+ const typeJ = scores.J >= scores.P ? 'J' : 'P';
+ const finalType = typeE + typeS + typeT + typeJ;
+
+ // 显示结果
+ const resultDiv = document.getElementById('result');
+ resultDiv.style.display = 'block';
+ resultDiv.innerHTML = `
+ <h2>🧾 你的测试结果</h2>
+ <div class="type-badge">${finalType}</div>
+ <div class="score-grid">
+ <span class="score-item"><strong>E</strong> ${scores.E}</span>
+ <span class="score-item"><strong>I</strong> ${scores.I}</span>
+ <span class="score-item" style="color:#94a3b8;">|</span>
+ <span class="score-item"><strong>S</strong> ${scores.S}</span>
+ <span class="score-item"><strong>N</strong> ${scores.N}</span>
+ <span class="score-item" style="color:#94a3b8;">|</span>
+ <span class="score-item"><strong>T</strong> ${scores.T}</span>
+ <span class="score-item"><strong>F</strong> ${scores.F}</span>
+ <span class="score-item" style="color:#94a3b8;">|</span>
+ <span class="score-item"><strong>J</strong> ${scores.J}</span>
+ <span class="score-item"><strong>P</strong> ${scores.P}</span>
+ </div>
+ <div class="desc-box">
+ <span class="highlight">人格类型：${finalType}</span><br>
+ <span style="color:#64748b;">（各维度取分数高者，例如 E 与 I 比较，分数高者即为你该维度的偏好）</span>
+ </div>
+ `;
+
+ // 平滑滚动到结果
+ resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+ });
+ </script>
+
+</body>
+</html>
