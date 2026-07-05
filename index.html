@@ -1,530 +1,269 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
- <title>MBTI 人格类型测试</title>
- <style>
- /* ---------- 全局重置 & 字体 ---------- */
- * {
- box-sizing: border-box;
- margin: 0;
- padding: 0;
- }
-
- body {
- font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
- background: #f0f4f9;
- padding: 20px 16px 50px;
- color: #1a202c;
- min-height: 100vh;
- }
-
- /* 主容器：电脑上居中且变宽，手机上全屏舒适 */
- .container {
- max-width: 780px;
- margin: 0 auto;
- background: #ffffff;
- border-radius: 28px;
- box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
- padding: 24px 22px 32px;
- }
-
- /* ---------- 头部 ---------- */
- .header {
- display: flex;
- justify-content: space-between;
- align-items: center;
- flex-wrap: wrap;
- margin-bottom: 18px;
- border-bottom: 2px solid #edf2f7;
- padding-bottom: 14px;
- }
-
- .header h1 {
- font-size: 22px;
- font-weight: 700;
- color: #0f172a;
- letter-spacing: 0.5px;
- }
-
- .header h1 span {
- color: #3b82f6;
- }
-
- .progress-badge {
- background: #eef2ff;
- color: #4338ca;
- font-size: 14px;
- font-weight: 600;
- padding: 6px 16px;
- border-radius: 40px;
- white-space: nowrap;
- }
-
- /* ---------- 题目卡片 ---------- */
- .question {
- background: #fafcff;
- border: 1px solid #e9edf2;
- border-radius: 18px;
- padding: 18px 18px 14px;
- margin-bottom: 16px;
- transition: border-color 0.2s;
- }
-
- .question:hover {
- border-color: #bdd3f8;
- }
-
- .q-title {
- font-weight: 600;
- font-size: 16px;
- line-height: 1.5;
- margin-bottom: 10px;
- color: #0b1b33;
- display: flex;
- gap: 8px;
- }
-
- .q-title .q-num {
- display: inline-block;
- background: #e9edf2;
- color: #334155;
- font-size: 13px;
- font-weight: 700;
- width: 26px;
- height: 26px;
- border-radius: 30px;
- text-align: center;
- line-height: 26px;
- flex-shrink: 0;
- }
-
- /* ---------- 选项按钮 ---------- */
- .options {
- display: flex;
- flex-direction: column;
- gap: 6px;
- margin-top: 2px;
- }
-
- .options label {
- display: flex;
- align-items: flex-start;
- gap: 12px;
- font-size: 15px;
- line-height: 1.45;
- padding: 11px 14px;
- border-radius: 12px;
- background: #f8fafc;
- border: 1.5px solid transparent;
- transition: all 0.15s ease;
- cursor: pointer;
- -webkit-tap-highlight-color: transparent;
- }
-
- /* 电脑端 hover 效果 */
- @media (hover: hover) {
- .options label:hover {
- background: #f1f5f9;
- border-color: #cbd5e1;
- }
- }
-
- /* 手机端点击反馈 */
- .options label:active {
- background: #e2e8f0;
- transform: scale(0.98);
- }
-
- .options input[type="radio"] {
- margin-top: 2px;
- width: 20px;
- height: 20px;
- flex-shrink: 0;
- accent-color: #3b82f6;
- cursor: pointer;
- }
-
- /* 选中状态 */
- .options label:has(input:checked) {
- background: #dbeafe;
- border-color: #3b82f6;
- box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
- }
-
- /* ---------- 提交按钮 ---------- */
- .btn-submit {
- display: block;
- width: 100%;
- padding: 18px 20px;
- font-size: 19px;
- font-weight: 700;
- background: #1e293b;
- color: white;
- border: none;
- border-radius: 60px;
- margin: 26px 0 10px;
- cursor: pointer;
- transition: all 0.2s;
- letter-spacing: 1px;
- box-shadow: 0 6px 18px rgba(30, 41, 59, 0.20);
- }
-
- .btn-submit:hover {
- background: #0f172a;
- transform: translateY(-2px);
- box-shadow: 0 10px 24px rgba(30, 41, 59, 0.25);
- }
-
- .btn-submit:active {
- transform: scale(0.97);
- background: #334155;
- }
-
- /* ---------- 结果区域 ---------- */
- #result {
- background: #f8fafc;
- border-radius: 24px;
- padding: 24px 22px;
- border: 2px solid #e2e8f0;
- display: none;
- margin-top: 28px;
- animation: fadeUp 0.4s ease;
- }
-
- @keyframes fadeUp {
- from {
- opacity: 0;
- transform: translateY(16px);
- }
- to {
- opacity: 1;
- transform: translateY(0);
- }
- }
-
- #result h2 {
- font-size: 20px;
- font-weight: 600;
- color: #0f172a;
- margin-bottom: 4px;
- }
-
- .type-badge {
- font-size: 44px;
- font-weight: 800;
- color: #2563eb;
- letter-spacing: 3px;
- margin: 6px 0 12px;
- background: #eef2ff;
- display: inline-block;
- padding: 4px 24px 6px;
- border-radius: 60px;
- }
-
- .score-grid {
- display: flex;
- flex-wrap: wrap;
- gap: 6px 20px;
- background: white;
- padding: 14px 18px;
- border-radius: 16px;
- margin: 10px 0 14px;
- border: 1px solid #e2e8f0;
- }
-
- .score-item {
- font-size: 15px;
- font-weight: 500;
- }
-
- .score-item strong {
- font-weight: 700;
- color: #0f172a;
- margin-right: 4px;
- }
-
- .desc-box {
- font-size: 15px;
- line-height: 1.7;
- color: #334155;
- border-top: 1px solid #e2e8f0;
- padding-top: 16px;
- margin-top: 6px;
- }
-
- .desc-box .highlight {
- font-weight: 700;
- color: #1e293b;
- }
-
- /* ---------- 底部提示 ---------- */
- .footer-note {
- text-align: center;
- color: #94a3b8;
- font-size: 13px;
- margin-top: 24px;
- padding-top: 12px;
- border-top: 1px solid #edf2f7;
- }
-
- /* ---------- 电脑端大屏优化 ---------- */
- @media (min-width: 768px) {
- body {
- padding: 40px 30px;
- background: #e8edf5;
- }
- .container {
- padding: 36px 40px 40px;
- }
- .header h1 {
- font-size: 28px;
- }
- .question {
- padding: 20px 22px 16px;
- }
- .options label {
- padding: 12px 18px;
- font-size: 16px;
- }
- .type-badge {
- font-size: 54px;
- }
- }
-
- /* ---------- 手机端额外优化 ---------- */
- @media (max-width: 480px) {
- .container {
- padding: 16px 14px 24px;
- border-radius: 20px;
- }
- .header h1 {
- font-size: 19px;
- }
- .q-title {
- font-size: 15px;
- }
- .options label {
- font-size: 14px;
- padding: 10px 12px;
- }
- .btn-submit {
- font-size: 17px;
- padding: 16px;
- }
- }
- </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MBTI 人格类型测试</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f0f4f9;padding:20px 16px 50px;color:#1a202c;min-height:100vh}
+.container{max-width:780px;margin:0 auto;background:#fff;border-radius:28px;box-shadow:0 10px 40px rgba(0,0,0,.06);padding:24px 22px 32px}
+.header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:18px;border-bottom:2px solid #edf2f7;padding-bottom:14px}
+.header h1{font-size:22px;font-weight:700;color:#0f172a;letter-spacing:.5px}
+.header h1 span{color:#3b82f6}
+.progress-badge{background:#eef2ff;color:#4338ca;font-size:14px;font-weight:600;padding:6px 16px;border-radius:40px;white-space:nowrap}
+.question{background:#fafcff;border:1px solid #e9edf2;border-radius:18px;padding:18px 18px 14px;margin-bottom:16px}
+.q-title{font-weight:600;font-size:16px;line-height:1.5;margin-bottom:10px;color:#0b1b33;display:flex;gap:8px}
+.q-title .q-num{display:inline-block;background:#e9edf2;color:#334155;font-size:13px;font-weight:700;width:26px;height:26px;border-radius:30px;text-align:center;line-height:26px;flex-shrink:0}
+.options{display:flex;flex-direction:column;gap:6px;margin-top:2px}
+.options label{display:flex;align-items:flex-start;gap:12px;font-size:15px;line-height:1.45;padding:11px 14px;border-radius:12px;background:#f8fafc;border:1.5px solid transparent;transition:all .15s;cursor:pointer;-webkit-tap-highlight-color:transparent}
+@media(hover:hover){.options label:hover{background:#f1f5f9;border-color:#cbd5e1}}
+.options label:active{background:#e2e8f0;transform:scale(.98)}
+.options input[type=radio]{margin-top:2px;width:20px;height:20px;flex-shrink:0;accent-color:#3b82f6;cursor:pointer}
+.options label:has(input:checked){background:#dbeafe;border-color:#3b82f6;box-shadow:0 0 0 2px rgba(59,130,246,.15)}
+.btn-submit{display:block;width:100%;padding:18px;font-size:19px;font-weight:700;background:#1e293b;color:#fff;border:none;border-radius:60px;margin:26px 0 10px;cursor:pointer;transition:all .2s;letter-spacing:1px;box-shadow:0 6px 18px rgba(30,41,59,.2)}
+.btn-submit:hover{background:#0f172a;transform:translateY(-2px);box-shadow:0 10px 24px rgba(30,41,59,.25)}
+.btn-submit:active{transform:scale(.97)}
+#result{background:#f8fafc;border-radius:24px;padding:24px 22px;border:2px solid #e2e8f0;display:none;margin-top:28px;animation:fadeUp .4s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+#result h2{font-size:20px;font-weight:600;color:#0f172a;margin-bottom:4px}
+.type-badge{font-size:44px;font-weight:800;color:#2563eb;letter-spacing:3px;margin:6px 0 12px;background:#eef2ff;display:inline-block;padding:4px 24px 6px;border-radius:60px}
+.score-grid{display:flex;flex-wrap:wrap;gap:6px 20px;background:#fff;padding:14px 18px;border-radius:16px;margin:10px 0 14px;border:1px solid #e2e8f0}
+.score-item{font-size:15px;font-weight:500}
+.score-item strong{font-weight:700;color:#0f172a;margin-right:4px}
+.desc-box{font-size:15px;line-height:1.7;color:#334155;border-top:1px solid #e2e8f0;padding-top:16px;margin-top:6px}
+.desc-box .highlight{font-weight:700;color:#1e293b}
+.footer-note{text-align:center;color:#94a3b8;font-size:13px;margin-top:24px;padding-top:12px;border-top:1px solid #edf2f7}
+@media(min-width:768px){body{padding:40px 30px;background:#e8edf5}.container{padding:36px 40px}.header h1{font-size:28px}.question{padding:20px 22px 16px}.options label{padding:12px 18px;font-size:16px}.type-badge{font-size:54px}}
+@media(max-width:480px){.container{padding:16px 14px 24px;border-radius:20px}.header h1{font-size:19px}.q-title{font-size:15px}.options label{font-size:14px;padding:10px 12px}.btn-submit{font-size:17px;padding:16px}}
+</style>
 </head>
 <body>
+<div class="container">
+<div class="header">
+<h1>&#x1F9E0; 人格<span>类型</span></h1>
+<div class="progress-badge" id="progressDisplay">0 / 40</div>
+</div>
+<div id="app"></div>
+<button class="btn-submit" id="submitBtn">&#x1F4CA; 查看我的类型</button>
+<div id="result"></div>
+<div class="footer-note">点击选项即可选中 · 全部答完即可提交</div>
+</div>
 
- <div class="container">
+<script>
+(function() {
+  'use strict';
 
- <!-- 头部：标题 + 进度 -->
- <div class="header">
- <h1>🧠 人格<span>类型</span></h1>
- <div class="progress-badge" id="progressDisplay">0 / 40</div>
- </div>
+  // ===== 40 道题目，用数组存，每道题两个选项对应 MBTI 维度 =====
+  var qs = [
+    {a:'先想再说，有时想了很久却没开口。',  b:'想到就说，说话速度比思考还快。',            av:'I', bv:'E'},
+    {a:'受到束缚。',                         b:'让一切尽在掌控之中。',                       av:'P', bv:'J'},
+    {a:'我对身边人的情绪很敏感。',            b:'错误立即引起我的注意。',                     av:'F', bv:'T'},
+    {a:'对我来说更像是一种折磨。',            b:'大多数让我感到开心。',                       av:'N', bv:'S'},
+    {a:'工作和休闲对我来说并没有那么清楚地分开。', b:'先工作，再玩耍。',                      av:'P', bv:'J'},
+    {a:'真相和公平。',                        b:'和谐与同理心。',                            av:'T', bv:'F'},
+    {a:'我仔细而准确。',                      b:'我更多是凭感觉和估计。',                    av:'S', bv:'N'},
+    {a:'现实主义者。',                        b:'理想主义者。',                              av:'S', bv:'N'},
+    {a:'我家里一切都井然有序。',               b:'我家里有种「创造性的混乱」。',                av:'J', bv:'P'},
+    {a:'安排得井井有条。',                    b:'灵活应对意外情况。',                         av:'J', bv:'P'},
+    {a:'我听得多。',                          b:'我很喜欢说。',                              av:'I', bv:'E'},
+    {a:'我很少说，就算说也只告诉几个人。',     b:'我藏不住话。',                              av:'I', bv:'E'},
+    {a:'被叫作有感情的人。',                  b:'被叫作有头脑的人。',                         av:'F', bv:'T'},
+    {a:'我通常在客人到来前一刻钟完成准备工作。', b:'第一个客人到达时，我还在准备。',            av:'J', bv:'P'},
+    {a:'对细节的良好感知。',                   b:'对细节的拙劣感知。',                         av:'S', bv:'N'},
+    {a:'我想在星期一就知道周末有什么计划。',    b:'我宁愿等着看周末能干啥。',                  av:'J', bv:'P'},
+    {a:'在熟悉的圈子里放松。',                 b:'有完整的独处时间。',                         av:'I', bv:'E'},
+    {a:'我会读新设备的使用说明。',             b:'迫不得已时，我才读使用说明。',               av:'S', bv:'N'},
+    {a:'有人说话不算话。',                    b:'有人不懂变通。',                            av:'J', bv:'P'},
+    {a:'我的情绪大多数时候写在脸上。',          b:'其他人不太容易看得出我心里在想什么。',        av:'E', bv:'I'},
+    {a:'我经常在最后一分钟完成工作。',          b:'我通常能很好地管理自己的时间。',              av:'P', bv:'J'},
+    {a:'哲学的天赋。',                        b:'一种实际的才能。',                           av:'N', bv:'S'},
+    {a:'我的感觉。',                          b:'客观事实。',                                av:'F', bv:'T'},
+    {a:'我不觉得累。',                        b:'我经常觉得很累。',                          av:'E', bv:'I'},
+    {a:'需要社交技巧和同理心。',               b:'需要理性行动和分析思维。',                   av:'F', bv:'T'},
+    {a:'我几乎可以一直身边有人。',             b:'我不时地需要独处的时间。',                  av:'E', bv:'I'},
+    {a:'我通常让想法和感受脱口而出。',          b:'在我输出想法和感受之前，通常会想很久。',       av:'E', bv:'I'},
+    {a:'我经常思考未来及其可能性。',           b:'我的想法更多的是关注此时此地。',             av:'N', bv:'S'},
+    {a:'其中需要许多新概念。',                 b:'准确性和事实性知识很重要。',                 av:'N', bv:'S'},
+    {a:'严厉但公平！',                        b:'情大于法。',                                av:'T', bv:'F'},
+    {a:'我通常会很快就去处理不愉快的事情。',    b:'我经常把不愉快的事情拖了又拖。',              av:'J', bv:'P'},
+    {a:'腼腆而安静。',                        b:'健谈而开放。',                              av:'I', bv:'E'},
+    {a:'我相当自然而强烈地体验我的感受。',      b:'我不太容易情绪化。',                         av:'F', bv:'T'},
+    {a:'最后，时间紧迫。',                     b:'提前，当我知道我还有足够的时间时。',          av:'P', bv:'J'},
+    {a:'谈论事实话题。',                       b:'谈论人际关系。',                            av:'T', bv:'F'},
+    {a:'我喜欢思考「生活中的大问题」。',        b:'我更喜欢关注具体的东西。',                   av:'N', bv:'S'},
+    {a:'不怎么坚持我的立场。',                 b:'惹人生气。',                                av:'P', bv:'J'},
+    {a:'看一本好书或一部好电影。',             b:'社交活动或谈话。',                          av:'I', bv:'E'},
+    {a:'爆发一股猛劲。',                       b:'有纪律，有条理。',                          av:'P', bv:'J'},
+    {a:'我很容易被冒犯。',                    b:'我心大。',                                  av:'F', bv:'T'}
+  ];
 
- <!-- 题目容器 -->
- <div id="app"></div>
+  var qTitles = [
+    '与人交流时，我通常是……',
+    '长期计划让我觉得……',
+    '更符合我的陈述是……',
+    '需要耐心和细心的工作，我觉得如何？',
+    '更符合我的陈述是……',
+    '在关系中，我非常重视……',
+    '当我修修补补或做手工时，……',
+    '如果必须选择，我宁愿将自己描述为……',
+    '更符合我的陈述是……',
+    '我的优势更多在于……',
+    '在公司时，……',
+    '有问题时，……',
+    '我宁愿……',
+    '等客人时，……',
+    '更符合我的陈述是……',
+    '更符合我的陈述是……',
+    '我最好的充电方式是……',
+    '更符合我的陈述是……',
+    '让我很烦的是……',
+    '更符合我的陈述是……',
+    '更符合我的陈述是……',
+    '我宁愿有……',
+    '必须做出决定时，我会在有疑问时依靠……',
+    '与他人长时间相处时，……',
+    '我更喜欢……的工作。',
+    '与一群朋友一起旅行时，……',
+    '更符合我的陈述是……',
+    '更符合我的陈述是……',
+    '我更喜欢的工作领域是……',
+    '下面的表达方式，……更适合我。',
+    '更符合我的陈述是……',
+    '其他人会形容我为……',
+    '更符合我的陈述是……',
+    '在……情况下，我的工作效率最高。',
+    '我更喜欢……',
+    '更符合我的陈述是……',
+    '我更可能会……',
+    '在空闲时间，我倾向于选择……',
+    '我更可能的工作方式是……',
+    '更符合我的陈述是……'
+  ];
 
- <!-- 提交按钮 -->
- <button class="btn-submit" id="submitBtn">📊 查看我的类型</button>
+  // ===== 渲染 =====
+  var app = document.getElementById('app');
+  var progressEl = document.getElementById('progressDisplay');
+  var total = qs.length;
 
- <!-- 结果容器 -->
- <div id="result"></div>
+  for (var i = 0; i < total; i++) {
+    var q = qs[i];
+    var div = document.createElement('div');
+    div.className = 'question';
+    div.innerHTML =
+      '<div class="q-title"><span class="q-num">' + (i+1) + '</span><span>' + qTitles[i] + '</span></div>' +
+      '<div class="options">' +
+        '<label><input type="radio" name="q' + i + '" value="a"> ' + q.a + '</label>' +
+        '<label><input type="radio" name="q' + i + '" value="b"> ' + q.b + '</label>' +
+      '</div>';
+    app.appendChild(div);
+  }
 
- <div class="footer-note">点击选项即可选中 · 全部答完自动计分</div>
- </div>
+  // ===== 进度更新 =====
+  function updateProgress() {
+    var answered = 0;
+    for (var i = 0; i < total; i++) {
+      if (document.querySelector('input[name="q' + i + '"]:checked')) {
+        answered++;
+      }
+    }
+    progressEl.textContent = answered + ' / ' + total;
+  }
 
- <script>
- // ============================================================
- // 1. 题目数据（40 题，完全依据你提供的图片内容）
- // ============================================================
- const questions = [
- { q: "与人交流时，我通常是……", a: "a. 先想再说，有时想了很久却没开口。", b: "b. 想到就说，说话速度比思考还快。", aVal: 'I', bVal: 'E' },
- { q: "长期计划让我觉得……", a: "a. 受到束缚。", b: "b. 让一切尽在掌控之中。", aVal: 'P', bVal: 'J' },
- { q: "更符合我的陈述是……", a: "a. 我对身边人的情绪很敏感。", b: "b. 错误立即引起我的注意。", aVal: 'F', bVal: 'T' },
- { q: "需要耐心和细心的工作，我觉得如何？", a: "a. 对我来说更像是一种折磨。", b: "b. 大多数让我感到开心。", aVal: 'N', bVal: 'S' },
- { q: "更符合我的陈述是……", a: "a. 工作和休闲对我来说并没有那么清楚地分开。", b: "b. 先工作，再玩耍。", aVal: 'P', bVal: 'J' },
- { q: "在关系中，我非常重视……", a: "a. 真相和公平。", b: "b. 和谐与同理心。", aVal: 'T', bVal: 'F' },
- { q: "当我修修补补或做手工时，……", a: "a. 我仔细而准确。", b: "b. 我更多是凭感觉和估计。", aVal: 'S', bVal: 'N' },
- { q: "如果必须选择，我宁愿将自己描述为……", a: "a. 现实主义者。", b: "b. 理想主义者。", aVal: 'S', bVal: 'N' },
- { q: "更符合我的陈述是……", a: "a. 我家里一切都井然有序。", b: "b. 我家里有种「创造性的混乱」。", aVal: 'J', bVal: 'P' },
- { q: "我的优势更多在于……", a: "a. 安排得井井有条。", b: "b. 灵活应对意外情况。", aVal: 'J', bVal: 'P' },
- { q: "在公司时，……", a: "a. 我听得多。", b: "b. 我很喜欢说。", aVal: 'I', bVal: 'E' },
- { q: "有问题时，……", a: "a. 我很少说，就算说也只告诉几个人。", b: "b. 我藏不住话。", aVal: 'I', bVal: 'E' },
- { q: "我宁愿……", a: "a. 被叫作有感情的人。", b: "b. 被叫作有头脑的人。", aVal: 'F', bVal: 'T' },
- { q: "等客人时，……", a: "a. 我通常在客人到来前一刻钟完成准备工作。", b: "b. 第一个客人到达时，我还在准备。", aVal: 'J', bVal: 'P' },
- { q: "更符合我的陈述是……", a: "a. 对细节的良好感知。", b: "b. 对细节的拙劣感知。", aVal: 'S', bVal: 'N' },
- { q: "更符合我的陈述是……", a: "a. 我想在星期一就知道周末有什么计划。", b: "b. 我宁愿等着看周末能干啥。", aVal: 'J', bVal: 'P' },
- { q: "我最好的充电方式是……", a: "a. 在熟悉的圈子里放松。", b: "b. 有完整的独处时间。", aVal: 'I', bVal: 'E' },
- { q: "更符合我的陈述是……", a: "a. 我会读新设备的使用说明。", b: "b. 迫不得已时，我才读使用说明。", aVal: 'S', bVal: 'N' },
- { q: "让我很烦的是……", a: "a. 有人说话不算话。", b: "b. 有人不懂变通。", aVal: 'J', bVal: 'P' },
- { q: "更符合我的陈述是……", a: "a. 我的情绪大多数时候写在脸上。", b: "b. 其他人不太容易看得出我心里在想什么。", aVal: 'E', bVal: 'I' },
- { q: "更符合我的陈述是……", a: "a. 我经常在最后一分钟完成工作。", b: "b. 我通常能很好地管理自己的时间。", aVal: 'P', bVal: 'J' },
- { q: "我宁愿有……", a: "a. 哲学的天赋。", b: "b. 一种实际的才能。", aVal: 'N', bVal: 'S' },
- { q: "必须做出决定时，我会在有疑问时依靠……", a: "a. 我的感觉。", b: "b. 客观事实。", aVal: 'F', bVal: 'T' },
- { q: "与他人长时间相处时，……", a: "a. 我不觉得累。", b: "b. 我经常觉得很累。", aVal: 'E', bVal: 'I' },
- { q: "我更喜欢……的工作。", a: "a. 需要社交技巧和同理心。", b: "b. 需要理性行动和分析思维。", aVal: 'F', bVal: 'T' },
- { q: "与一群朋友一起旅行时，……", a: "a. 我几乎可以一直身边有人。", b: "b. 我不时地需要独处的时间。", aVal: 'E', bVal: 'I' },
- { q: "更符合我的陈述是……", a: "a. 我通常让我的想法和感受脱口而出。", b: "b. 在我输出想法和感受之前，我通常会想很久。", aVal: 'E', bVal: 'I' },
- { q: "更符合我的陈述是……", a: "a. 我经常思考未来及其可能性。", b: "b. 我的想法更多的是关注此时此地。", aVal: 'N', bVal: 'S' },
- { q: "我更喜欢的工作领域是……", a: "a. 其中需要许多新概念。", b: "b. 准确性和事实性知识很重要。", aVal: 'N', bVal: 'S' },
- { q: "下面的表达方式，……更适合我。", a: "a. 严厉但公平！", b: "b. 情大于法。", aVal: 'T', bVal: 'F' },
- { q: "更符合我的陈述是……", a: "a. 我通常会很快就去处理不愉快的事情，想赶紧摆脱。", b: "b. 我经常把不愉快的事情拖了又拖。", aVal: 'J', bVal: 'P' },
- { q: "其他人会形容我为……", a: "a. 腼腆而安静。", b: "b. 健谈而开放。", aVal: 'I', bVal: 'E' },
- { q: "更符合我的陈述是……", a: "a. 我相当自然而强烈地体验我的感受。", b: "b. 我不太容易情绪化。", aVal: 'F', bVal: 'T' },
- { q: "在……情况下，我的工作效率最高。", a: "a. 最后，时间紧迫。", b: "b. 提前，当我知道我还有足够的时间时。", aVal: 'P', bVal: 'J' },
- { q: "我更喜欢……", a: "a. 谈论事实话题。", b: "b. 谈论人际关系。", aVal: 'T', bVal: 'F' },
- { q: "更符合我的陈述是……", a: "a. 我喜欢思考「生活中的大问题」。", b: "b. 我更喜欢关注具体的东西。", aVal: 'N', bVal: 'S' },
- { q: "我更可能会……", a: "a. 不怎么坚持我的立场。", b: "b. 惹人生气。", aVal: 'P', bVal: 'J' },
- { q: "在空闲时间，我倾向于选择……", a: "a. 看一本好书或一部好电影。", b: "b. 社交活动或谈话。", aVal: 'I', bVal: 'E' },
- { q: "我更可能的工作方式是……", a: "a. 爆发一股猛劲。", b: "b. 有纪律，有条理。", aVal: 'P', bVal: 'J' },
- { q: "更符合我的陈述是……", a: "a. 我很容易被冒犯。", b: "b. 我心大。", aVal: 'F', bVal: 'T' }
- ];
+  var allRadios = document.querySelectorAll('input[type="radio"]');
+  for (var r = 0; r < allRadios.length; r++) {
+    allRadios[r].addEventListener('change', updateProgress);
+  }
+  updateProgress();
 
- // ============================================================
- // 2. 渲染题目到页面
- // ============================================================
- const app = document.getElementById('app');
- const progressDisplay = document.getElementById('progressDisplay');
+  // ===== 类型描述 =====
+  var typeNames = {
+    INTJ:'建筑师',INTP:'逻辑学家',ENTJ:'指挥官',ENTP:'辩论家',
+    INFJ:'提倡者',INFP:'调停者',ENFJ:'主人公',ENFP:'竞选者',
+    ISTJ:'物流师',ISFJ:'守卫者',ESTJ:'总经理',ESFJ:'执政官',
+    ISTP:'鉴赏家',ISFP:'探险家',ESTP:'企业家',ESFP:'表演者'
+  };
+  var typeDescs = {
+    INTJ:'富有想象力和战略性的思考者，一切皆有规划。喜欢独立思考和长期规划。',
+    INTP:'具有创造力的发明家，对知识有着永不满足的渴望。善于分析抽象概念。',
+    ENTJ:'大胆、富有想象力且意志坚强的领导者，总能找到或创造方法。天生善于组织。',
+    ENTP:'聪明好奇的思想者，不介意智力挑战。喜欢从不同角度思考问题，享受辩论。',
+    INFJ:'安静而神秘，同时鼓舞人心且不知疲倦的理想主义者。有深刻的洞察力。',
+    INFP:'诗意、善良的利他主义者，总是热情地为正义事业而战。内心世界丰富而深刻。',
+    ENFJ:'富有魅力和鼓舞人心的领导者，能令听众着迷。善于理解他人，天生的导师。',
+    ENFP:'热情、有创造力、爱社交的自由精神。充满好奇心和可能性。',
+    ISTJ:'安静、勤奋、负责的实际检查者。可靠、有条理，注重承诺和传统。',
+    ISFJ:'非常专注和温暖的守护者，时刻准备保护所爱之人。体贴、细心、乐于奉献。',
+    ESTJ:'出色的管理者，在管理事物和人员方面无与伦比。务实、果断、注重效率。',
+    ESFJ:'极受欢迎、富有同情心的社交达人，总是乐于提供帮助。热心、善于合作。',
+    ISTP:'大胆而实际的实践者，擅长使用各种工具。冷静、灵活，善于解决实际问题。',
+    ISFP:'灵活有魅力的艺术家，总是准备探索和体验新事物。敏感、温柔、有审美眼光。',
+    ESTP:'聪明、精力充沛、善于感知的冒险家。行动派，擅长说服和随机应变。',
+    ESFP:'自发的、精力充沛的表演者，喜欢在聚光灯下生活。热情乐观，是人群中的开心果。'
+  };
 
- questions.forEach((q, idx) => {
- const div = document.createElement('div');
- div.className = 'question';
- div.innerHTML = `
- <div class="q-title">
- <span class="q-num">${idx + 1}</span>
- <span>${q.q}</span>
- </div>
- <div class="options">
- <label><input type="radio" name="q${idx}" value="a"> ${q.a}</label>
- <label><input type="radio" name="q${idx}" value="b"> ${q.b}</label>
- </div>
- `;
- app.appendChild(div);
- });
+  // ===== 提交 =====
+  document.getElementById('submitBtn').addEventListener('click', function() {
+    var allAnswered = true;
+    for (var i = 0; i < total; i++) {
+      if (!document.querySelector('input[name="q' + i + '"]:checked')) {
+        allAnswered = false;
+        break;
+      }
+    }
+    if (!allAnswered) {
+      alert('还有题目未作答，请完成全部 40 道题再提交。');
+      return;
+    }
 
- // ============================================================
- // 3. 实时更新进度（监听所有 radio 的点击）
- // ============================================================
- function updateProgress() {
- const total = questions.length;
- let answered = 0;
- for (let i = 0; i < total; i++) {
- const checked = document.querySelector(`input[name="q${i}"]:checked`);
- if (checked) answered++;
- }
- progressDisplay.textContent = `${answered} / ${total}`;
- }
+    var scores = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
+    for (var i = 0; i < total; i++) {
+      var sel = document.querySelector('input[name="q' + i + '"]:checked');
+      if (!sel) continue;
+      var letter = sel.value === 'a' ? qs[i].av : qs[i].bv;
+      scores[letter] = (scores[letter] || 0) + 1;
+    }
 
- // 监听所有 radio 的变化
- document.querySelectorAll('input[type="radio"]').forEach(radio => {
- radio.addEventListener('change', updateProgress);
- });
+    var type = '';
+    type += scores.E >= scores.I ? 'E' : 'I';
+    type += scores.S >= scores.N ? 'S' : 'N';
+    type += scores.T >= scores.F ? 'T' : 'F';
+    type += scores.J >= scores.P ? 'J' : 'P';
 
- // 初始更新
- updateProgress();
+    var name = typeNames[type] || '';
+    var desc = typeDescs[type] || '';
 
- // ============================================================
- // 4. 提交计算
- // ============================================================
- document.getElementById('submitBtn').addEventListener('click', function() {
- const total = questions.length;
- // 检查是否全部回答
- let allAnswered = true;
- for (let i = 0; i < total; i++) {
- const checked = document.querySelector(`input[name="q${i}"]:checked`);
- if (!checked) {
- allAnswered = false;
- break;
- }
- }
- if (!allAnswered) {
- alert('还有题目未作答，请完成全部 40 道题再提交。');
- return;
- }
+    var resultDiv = document.getElementById('result');
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML =
+      '<h2>&#x1F9FE; 你的测试结果</h2>' +
+      '<div class="type-badge">' + type + '</div>' +
+      '<div style="font-size:20px;font-weight:700;margin:6px 0 10px;color:#0f172a;">' + name + '</div>' +
+      '<div class="score-grid">' +
+        '<span class="score-item"><strong>E</strong> ' + scores.E + '</span>' +
+        '<span class="score-item"><strong>I</strong> ' + scores.I + '</span>' +
+        '<span class="score-item" style="color:#94a3b8;">|</span>' +
+        '<span class="score-item"><strong>S</strong> ' + scores.S + '</span>' +
+        '<span class="score-item"><strong>N</strong> ' + scores.N + '</span>' +
+        '<span class="score-item" style="color:#94a3b8;">|</span>' +
+        '<span class="score-item"><strong>T</strong> ' + scores.T + '</span>' +
+        '<span class="score-item"><strong>F</strong> ' + scores.F + '</span>' +
+        '<span class="score-item" style="color:#94a3b8;">|</span>' +
+        '<span class="score-item"><strong>J</strong> ' + scores.J + '</span>' +
+        '<span class="score-item"><strong>P</strong> ' + scores.P + '</span>' +
+      '</div>' +
+      '<div class="desc-box">' +
+        '<span class="highlight">' + type + ' ' + name + '</span>' +
+        '<p style="margin-top:8px;line-height:1.8;">' + desc + '</p>' +
+        '<p style="margin-top:12px;color:#64748b;font-size:14px;border-top:1px solid #e2e8f0;padding-top:12px;">' +
+          '&#x1F4A1; 各维度取分数高者。例如 E（外向）与 I（内向），得分高的即为你的偏好。' +
+        '</p>' +
+      '</div>';
 
- // 统计分数
- const scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
- for (let i = 0; i < total; i++) {
- const q = questions[i];
- const selected = document.querySelector(`input[name="q${i}"]:checked`);
- if (!selected) continue;
- const letter = selected.value === 'a' ? q.aVal : q.bVal;
- scores[letter] = (scores[letter] || 0) + 1;
- }
+    resultDiv.scrollIntoView({ behavior:'smooth', block:'center' });
+  });
 
- // 计算四维度类型
- const typeE = scores.E >= scores.I ? 'E' : 'I';
- const typeS = scores.S >= scores.N ? 'S' : 'N';
- const typeT = scores.T >= scores.F ? 'T' : 'F';
- const typeJ = scores.J >= scores.P ? 'J' : 'P';
- const finalType = typeE + typeS + typeT + typeJ;
-
- // MBTI 类型中文描述
- const typeNames = {
-  'INTJ': '建筑师', 'INTP': '逻辑学家', 'ENTJ': '指挥官', 'ENTP': '辩论家',
-  'INFJ': '提倡者', 'INFP': '调停者', 'ENFJ': '主人公', 'ENFP': '竞选者',
-  'ISTJ': '物流师', 'ISFJ': '守卫者', 'ESTJ': '总经理', 'ESFJ': '执政官',
-  'ISTP': '鉴赏家', 'ISFP': '探险家', 'ESTP': '企业家', 'ESFP': '表演者'
- };
-
- const typeDescriptions = {
-  'INTJ': '富有想象力和战略性的思考者，一切皆有规划。喜欢独立思考和长期规划，对知识有深度追求。',
-  'INTP': '具有创造力的发明家，对知识有着永不满足的渴望。善于分析抽象概念，追求逻辑一致性。',
-  'ENTJ': '大胆、富有想象力且意志坚强的领导者，总能找到或创造方法。天生善于组织和指挥。',
-  'ENTP': '聪明好奇的思想者，不介意智力挑战。喜欢从不同角度思考问题，享受辩论。',
-  'INFJ': '安静而神秘，同时鼓舞人心且不知疲倦的理想主义者。有深刻的洞察力和强烈的价值观。',
-  'INFP': '诗意、善良的利他主义者，总是热情地为正义事业而战。内心世界丰富而深刻。',
-  'ENFJ': '富有魅力和鼓舞人心的领导者，能令听众着迷。善于理解他人，天生的导师。',
-  'ENFP': '热情、有创造力、爱社交的自由精神，总能找到理由微笑。充满好奇心和可能性。',
-  'ISTJ': '安静、勤奋、负责的实际检查者。可靠、有条理，注重承诺和传统。',
-  'ISFJ': '非常专注和温暖的守护者，时刻准备保护所爱之人。体贴、细心、乐于奉献。',
-  'ESTJ': '出色的管理者，在管理事物和人员方面无与伦比。务实、果断、注重效率。',
-  'ESFJ': '极受欢迎、富有同情心的社交达人，总是乐于提供帮助。热心、善于合作。',
-  'ISTP': '大胆而实际的实践者，擅长使用各种工具。冷静、灵活，善于解决实际问题。',
-  'ISFP': '灵活有魅力的艺术家，总是准备探索和体验新事物。敏感、温柔、有审美眼光。',
-  'ESTP': '聪明、精力充沛、善于感知的冒险家。行动派，擅长说服和随机应变。',
-  'ESFP': '自发的、精力充沛的表演者，喜欢在聚光灯下生活。热情乐观，是人群中的开心果。'
- };
-
- const name = typeNames[finalType] || '';
- const desc = typeDescriptions[finalType] || '';
-
- // 显示结果
- const resultDiv = document.getElementById('result');
- resultDiv.style.display = 'block';
- resultDiv.innerHTML = `
-  <h2>🧾 你的测试结果</h2>
-  <div class="type-badge">${finalType}</div>
-  <div style="font-size:20px;font-weight:700;margin:6px 0 10px;color:#0f172a;">${name}</div>
-  <div class="score-grid">
-   <span class="score-item"><strong>E</strong> ${scores.E}</span>
-   <span class="score-item"><strong>I</strong> ${scores.I}</span>
-   <span class="score-item" style="color:#94a3b8;">|</span>
-   <span class="score-item"><strong>S</strong> ${scores.S}</span>
-   <span class="score-item"><strong>N</strong> ${scores.N}</span>
-   <span class="score-item" style="color:#94a3b8;">|</span>
-   <span class="score-item"><strong>T</strong> ${scores.T}</span>
-   <span class="score-item"><strong>F</strong> ${scores.F}</span>
-   <span class="score-item" style="color:#94a3b8;">|</span>
-   <span class="score-item"><strong>J</strong> ${scores.J}</span>
-   <span class="score-item"><strong>P</strong> ${scores.P}</span>
-  </div>
-  <div class="desc-box">
-   <span class="highlight">${finalType} ${name}</span>
-   <p style="margin-top:8px;line-height:1.8;">${desc}</p>
-   <p style="margin-top:12px;color:#64748b;font-size:14px;border-top:1px solid #e2e8f0;padding-top:12px;">💡 各维度取分数高者。例如 E（外向）与 I（内向），得分高的即为你在该维度的偏好。</p>
-  </div>
- `;
-
- // 平滑滚动到结果
- resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
- });
- </script>
-
+})();
+</script>
 </body>
 </html>
